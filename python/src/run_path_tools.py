@@ -61,7 +61,7 @@ def file_t_arr(filepath, resolution, VERBOSE=False):
     return im
 
 
-def get_run():
+def get_run(name=None, filepath_raw=None):
     """
     Reads the run name and filepath from std input. Checks that the filepath is
     valid. Extracts the frame data from each file into an array, removes any metadata, and 
@@ -70,26 +70,75 @@ def get_run():
     returns: Run object with corresponding name, filepath, and frame_avg.
     """
     # Get name of run and create Run_path object
-    name = input("Input name of run, press <enter> to skip:\n")
-    
-    if name == "":
-        name = None
-    run = Run(True, name)
+    if name == None:
+        name = input("Input name of run, press <enter> to skip:\n")
+        if name == "":
+            name = None
+        run = Run(True, name)
     # Get filepath and ensure it is valid
-    while True:
-        filepath = input("Input a valid filepath or press <enter> to exit program:\n")
-        filepath_raw = r"{}".format(filepath)
-    # Allow user to abort run
-        if filepath == "":
-            run.success = False
-            exit()      
-        if os.path.isfile(filepath_raw) == True:
-            run.filepath = filepath_raw
-            break
-        print("Error: could not find file: {}".format(filepath))
+    if filepath_raw == None:
+        while True:
+            filepath = input("Input a valid filepath or press <enter> to exit program:\n")
+            filepath_raw = r"{}".format(filepath)
+        # Allow user to abort run
+            if filepath == "":
+                run.success = False
+                exit()      
+            if os.path.isfile(filepath_raw) == True:
+                run.filepath = filepath_raw
+                break
+            print("Error: could not find file: {}".format(filepath))
     run.frame_arr = file_t_arr(run.filepath, run.resolution)
-
     return run
+
+
+def get_multi_run(VERBOSE = False):
+    """
+    Asks user to enter a valied path to a directory containing a series runs
+    and askes for the indentifying string for the series of runs. Form each
+    valid filename in the directory it will try to create a run object using
+    get run.
+
+    Returns: list of Run objects where the name corresponds to the filename
+    for the file containing the data 
+    """
+    # Get valid directory from std input
+    while True:
+        # Get valid dir
+        print("Please input a valid directory path")
+        filedir = input("Press <enter> to exit program")
+        filedir_raw = r"{}".format(filedir)
+        if os.path.isdir(filedir_raw) == False:
+            print("Error: could not find directory {}".format(filedir_raw))
+            continue
+        filedir_names = os.listdir(filedir_raw)
+        if len(filedir_names) == 0:
+            print("Error: directory is empty please enter a non-empty directory")
+            continue
+        break
+    # Get valid name from std input
+    while True:
+        print("Please input a valid identifying string for the run")
+        file_id = input("Press <enter> exit program")
+        if any(file_id in filename for filenames in filedir_names) == True:
+            break
+        else: print("Error did not match identifyer to any files")
+
+    run_sequence = []
+    for filename in filedir_names:
+        filepath_raw = os.path.join(filedir_raw, filename)
+        run_sequence.append(get_run(name=filename, filepath_raw=filepath_raw))
+        return run_sequence
+        
+                
+
+        
+                
+
+
+
+    
+
             
         
 
