@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as stats
 
 
 def graph_mean(arr, smooth=None, resolution=(520, 520)):
@@ -113,21 +114,63 @@ def get_offset(arr):
     return ped_arr
 
 
-def gauss(x, mean, std):
+def chi_sqr_test(xvals, yvals, mean, std):
     """
-    1-D gaussian function
+    Chi Square test against gaussian distribution
 
     Args:
-        x: array-like; x-values for gaussian
+        x_vals: array-like; x values of graph to test
 
-        mean: float; mean of gaussian
+        y_vals: array-like; y values of graph to test
 
-        std:float; standard deviation of gaussian
+        mean: float; arithmetic mean of the graph to test
 
-    returns: The gaussian with mean "mean" and standard deviation "std"
-        evaluated at x.
+        std: float; standard deviation of the graph to test
     """
-    return 1/(std*np.sqrt(2*np.pi))*np.exp(-1/2*np.square((x-mean)/std))
+    try:
+        len(xvals) == len(yvals)
+    except:
+        raise ValueError("The shape of xvals does not equal the shape of yvals")
+    
+    N = len(xvals)
+    chi2 = 0
+    zvals = (xvals - mean)/ std
+    theoretical = lambda x : stats.norm.cdf(x)
+    for i in range(len(xvals)):
+        chi2 += (yvals[i]/N - theoretical(zvals[i]))**2 / theoretical(zvals[i])
+    return  chi2 * N
 
 
-# def 
+def check_gauss(run, hpb=20):
+    """
+    Args:
+        run: Run class instance;
+        hpb: float; average hits per bin
+    """
+    # determine the number of frames for optimal bin values
+    u_frames = run.n_frames - run.start_frame
+    bin_dat = np.zeros([2, n_bins], dtype=float)
+    
+    # Check each individual pixel
+    for i in range(run.resolution[0]):
+        for j in range(run.resolution[1]):
+            n_bins = range(np.min(run.frame_arr[:, i, j]) - 0.5, \
+                np.max(run.frame_arr[:, i, j]) + 0.5, 1)
+            bin_dat[1], bin_edge = np.histogram(run.frame_arr[:, i, j], \
+                bins=n_bins, density=True)
+            for k in range(n_bins):
+                bin_dat[0, k] = (bin_edge[k+1]+bin_edge[k])/2
+            del bin_edge
+            # sorting
+            plt.plot(bin_dat[0], bin_dat[1])
+            # plt.hist(run.frame_arr[:, i, j], bins=n_bins, density=True)
+            plt.show()
+            
+    # # Check all pixels
+    # normal_frame_arr = np.zeros(run.frame_arr.shape, dtype=float)
+    # for i in range(run.start_frame, run.n_frames, 1):
+    #     normal_frame_arr[i] = (run.frame_arr[i] - run.offset) / run.err_dark
+    # n_bins = int(u_frames * run.resolution[0] / hpb)
+    # normal_frame_arr = normal_frame_arr.reshape(-1)
+    # plt.hist(normal_frame_arr, bins=n_bins, density=True)
+    plt.show()

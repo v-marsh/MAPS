@@ -26,8 +26,10 @@ if __name__ == "__main__":
             if run.success == False:
                 print("Import failed, aborting")
                 exit()
-            iat.get_offset(run.frame_arr)
-            iat.get_noise(run.frame_arr)
+            run.offset = iat.get_offset(run.frame_arr)
+            run.err_dark = iat.get_noise(run.frame_arr)
+            iat.check_gauss(run)
+
 
             # run.frame_avg = iat.graph_mean(run.frame_arr, smooth=None)
             # iat.graph_pixel(run.frame_arr, (50, 500))

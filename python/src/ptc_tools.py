@@ -109,7 +109,7 @@ def get_ptc(run_series, offset, read_error, resolution, sort=False):
         ptc.err_gauss[i] = np.sqrt(err_gauss/(2*u_frames)) 
     # Sort arrays against s_mean if sort == True
     if sort == True:
-        index = ptc.s_mean.argsort(axis=0, kind="heapsort")
+        index = ptc.s_mean.argsort(axis=0, kind="quicksort")
         ptc.index_sort(index, axis=0)
     
     # Plot output of pixel (0, 0) - remove later
