@@ -118,68 +118,82 @@ def get_ptc(run_series, offset, read_error, resolution, sort=False):
     return ptc
 
 
-def graph_err_tot(ptc, axes, colour="g"):
+def graph_err_tot(ptc, axes, log=False, colour="g"):
     """
     Plot the total error against average signal.
 
     Args:
-        ptc: PTC class instance, collection data for ptc curve plotting
+        ptc: PTC class instance; collection data for ptc curve plotting
         
-        axes: matplotlib.pyplot.axes, axes on which to plot total noise
+        axes: matplotlib.pyplot.axes; axes on which to plot total noise
 
-        colour: str, colour of the noise plot (standard matplotlib colours)
+        log: bool; if set to true the log of each value is taken
+
+        colour: str; colour of the noise plot (standard matplotlib colours)
     """
-    axes.plot(ptc.s_mean[:, 0, 0], ptc.err_tot[:, 0, 0], color=colour, label="Total noise")
+    x_vals = np.log10(ptc.s_mean[:, 1, 1])
+    y_vals = np.log10(ptc.err_tot[:, 1, 1])
+    axes.plot(x_vals, y_vals, color=colour, label="Total noise")
 
 
-def graph_err_fpn(ptc, axes, colour="b"):
+def graph_err_fpn(ptc, axes, log=False, colour="b"):
     """
     Plot the fixed pattern noise against average signal.
 
     Args:
-        ptc: PTC class instance, collection data for ptc curve plotting
+        ptc: PTC class instance; collection data for ptc curve plotting
         
-        axes: matplotlib.pyplot.axes, axes on which to plot the fixed pattern
+        axes: matplotlib.pyplot.axes; axes on which to plot the fixed pattern
             noise
 
-        colour: str, colour of the noise plot (standard matplotlib colours)
+        log: bool; if set to true the log of each value is taken
+
+        colour: str; colour of the noise plot (standard matplotlib colours)
     """
-    axes.plot(ptc.s_mean[:, 0, 0], ptc.err_fpn[:, 0, 0], color=colour, \
-        label="Fixed pattern noise")
+    x_vals = np.log10(ptc.s_mean[:, 1, 1])
+    y_vals = np.log10(ptc.err_fpn[:, 1, 1])
+    axes.plot(x_vals, y_vals, color=colour, label="Fixed pattern noise")
 
 
-def graph_err_gauss(ptc, axes, colour="r"):
-    """
-    Plot the total noise against average signal.
-
-    Args:
-        ptc: PTC class instance, collection of PTC data for curve plotting
-        
-        axes: matplotlib.pyplot.axes, axes on which to plot total noise
-
-        colour: str, colour of the noise plot (standard matplotlib colours)
-    """
-    axes.plot(ptc.s_mean[:, 0, 0], ptc.err_gauss[:, 0, 0], color=colour, \
-        label="Gaussian (shot) noise")
-
-
-def graph_err_read(read_noise, axes, colour="r"):
+def graph_err_gauss(ptc, axes, log=False, colour="r"):
     """
     Plot the total noise against average signal.
 
     Args:
-        ptc: PTC class instance, collection of PTC data for curve plotting
+        ptc: PTC class instance; collection of PTC data for curve plotting
         
-        axes: matplotlib.pyplot.axes, axes on which to plot total noise
+        axes: matplotlib.pyplot.axes; axes on which to plot total noise
 
-        colour: str, colour of the noise plot (standard matplotlib colours)
+        log: bool; if set to true the log of each value is taken
+        
+        colour: str; colour of the noise plot (standard matplotlib colours)
+    """
+    x_vals = np.log10(ptc.s_mean[:, 1, 1])
+    y_vals = np.log10(ptc.err_gauss[:, 1, 1]) 
+    axes.plot(x_vals, y_vals, color=colour, label="Gaussian (shot) noise")
+
+
+def graph_err_read(ptc, read_noise, axes, log=False, colour="r"):
+    """
+    Plot the total noise against average signal.
+
+    Args:
+        ptc: PTC class instance; collection of PTC data for curve plotting
+        
+        axes: matplotlib.pyplot.axes; axes on which to plot total noise
+
+        log: bool; if set to true the log of each value is taken
+
+        colour: str; colour of the noise plot (standard matplotlib colours)
     """
     # generate read noise
-    axes.plot(ptc.s_mean[:, 0, 0], ptc.err_gauss[:, 0, 0], color=colour, \
-        label="Gaussian (shot) noise")
+    
+    x_vals = np.log10(ptc.s_mean[:, 1, 1])
+    y_vals = np.log10(ptc.err_gauss[:, 1, 1]) 
+    axes.plot(x_vals, y_vals, color=colour, label="Gaussian (shot) noise")
 
 
-def graph_ptc(ptc):
+def graph_ptc(ptc, log=False, scale="linear"):
     """
     Graphs ptc curves depending on user input.
 
@@ -210,19 +224,15 @@ def graph_ptc(ptc):
     figure = plt.figure(figsize=(10, 6))
     ax = figure.add_axes([0.1, 0.1, 0.8, 0.8])
     if "1" in plots:
-        graph_err_tot(ptc, ax)
+        graph_err_tot(ptc, ax, log=log)
     if "2" in plots:
-        graph_err_fpn(ptc, ax)
+        graph_err_fpn(ptc, ax, log=log)
     if "3" in plots:
-        graph_err_gauss(ptc, ax)
+        graph_err_gauss(ptc, ax, log=log)
     if "4" in plots:
-        graph_err_read(ptx, ax)
-    ax.set_xscale("log")
-    ax.set_yscale("log")
+        graph_err_read(ptc, ax, log=log)
+    ax.set_xscale(scale)
+    ax.set_yscale(scale)
     ax.set(xlabel="Signal", ylabel="Noise")
     ax.legend()
     plt.show()
-                                
-                
-            
-        

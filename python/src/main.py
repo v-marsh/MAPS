@@ -61,7 +61,7 @@ if __name__ == "__main__":
                     exit()
                 elif repeat == "y":
                     # ptc_data.flatten()
-                    ptc.graph_ptc(ptc_data)
+                    ptc.graph_ptc(ptc_data, log=True)
                     continue
                 elif repeat == "n":
                     break

@@ -12,7 +12,7 @@ class Settings():
     offset_filepath = r"C:\Users\vidar\OneDrive - University of Bristol\Documents\Uni_2021_2022\MAPS_experiment\code\python\lib\Dark_Offset\Dark_test1"
     noise_filepath = r"C:\Users\vidar\OneDrive - University of Bristol\Documents\Uni_2021_2022\MAPS_experiment\code\python\lib\Dark_Noise\Dark_test1"
     resolution = (520, 520)
-    start_frame = 50
+    start_frame = 100
     end_frame = None
     pedestal = None
     read_error = None
