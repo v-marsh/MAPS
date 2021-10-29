@@ -17,17 +17,23 @@ class Run():
             Instance of the Run object with additional arguments:
                 filepath: str, path to run data
                 n_frames: int, the number of frames in the specific run
+                start_frame: first useful frame of the run
                 run_avg: float, average output for all pixels across all frames 
-                frame_arr: np.ndarray, pixel array for all frames
-                frame_avg: np.ndarray, array of the mean output for all pixels    
+                frame_arr: uint16 np.ndarray, pixel array for all frames
+                frame_avg: np.ndarray, array of the individual average pixels output  
+                offset: np.ndarray, pixel array of offset (pedestal) values for the sensor
+                err_dark: np.ndarray, pixel array of dark (read) noise   
         """
         self.success = success
         self.name = name
         self.filepath = None
         self.n_frames = None
+        self.start_frame = None
         self.run_avg = None
         self.frame_arr = None
         self.frame_avg = None
+        self.offset = None
+        self.err_dark = None
     
 
 def file_t_arr(filepath, resolution, VERBOSE=False):
@@ -58,10 +64,9 @@ def file_t_arr(filepath, resolution, VERBOSE=False):
     if VERBOSE == True:
         print("number of frames = {}".format(n_frames))
         print(im)
-    return im
+    return im, n_frames - 1
 
-
-def get_run(name=None, filepath_raw=None):
+def get_run(name=None, filepath_raw=None, start_frame=100):
     """
     Reads the run name and filepath from std input. Checks that the filepath is
     valid. Extracts the frame data from each file into an array, removes any metadata, and 
@@ -74,7 +79,7 @@ def get_run(name=None, filepath_raw=None):
         name = input("Input name of run, press <enter> to skip:\n")
         if name == "":
             name = None
-        run = Run(True, name)
+    run = Run(True, name)
     # Get filepath and ensure it is valid
     if filepath_raw == None:
         while True:
@@ -84,15 +89,18 @@ def get_run(name=None, filepath_raw=None):
             if filepath == "":
                 run.success = False
                 exit()      
-            if os.path.isfile(filepath_raw) == True:
-                run.filepath = filepath_raw
-                break
-            print("Error: could not find file: {}".format(filepath))
-    run.frame_arr = file_t_arr(run.filepath, run.resolution)
+    if os.path.isfile(filepath_raw) == True:
+        run.filepath = filepath_raw
+    else:
+        print("Error: could not find file: {}".format(filepath))
+        exit()
+    run.frame_arr, run.n_frames = file_t_arr(run.filepath, run.resolution)
+    # Setup start frame SORT OUT INPUT LATER
+    run.start_frame = start_frame
     return run
 
 
-def get_multi_run(VERBOSE = False):
+def get_multi_run(start_frame,VERBOSE=False):
     """
     Asks user to enter a valied path to a directory containing a series runs
     and askes for the indentifying string for the series of runs. Form each
@@ -106,8 +114,10 @@ def get_multi_run(VERBOSE = False):
     while True:
         # Get valid dir
         print("Please input a valid directory path")
-        filedir = input("Press <enter> to exit program")
+        filedir = input("Press <enter> to exit program\n")
         filedir_raw = r"{}".format(filedir)
+        if filedir == "":
+            exit()
         if os.path.isdir(filedir_raw) == False:
             print("Error: could not find directory {}".format(filedir_raw))
             continue
@@ -118,17 +128,24 @@ def get_multi_run(VERBOSE = False):
         break
     # Get valid name from std input
     while True:
+        id = False
         print("Please input a valid identifying string for the run")
-        file_id = input("Press <enter> exit program")
-        if any(file_id in filename for filenames in filedir_names) == True:
+        file_id = input("Press <enter> to exit program\n")
+        for filename in filedir_names:
+            if file_id in filename:
+                id = True
+                break
+        if id == True:
             break
         else: print("Error did not match identifyer to any files")
 
     run_sequence = []
     for filename in filedir_names:
-        filepath_raw = os.path.join(filedir_raw, filename)
-        run_sequence.append(get_run(name=filename, filepath_raw=filepath_raw))
-        return run_sequence
+        filetype = filename.split(".")[-1]
+        if filetype == "raw":
+            filepath_raw = os.path.join(filedir_raw, filename)
+            run_sequence.append(get_run(name=filename, filepath_raw=filepath_raw, start_frame=start_frame))
+    return run_sequence
         
                 
 
