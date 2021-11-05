@@ -54,6 +54,7 @@ if __name__ == "__main__":
             # iat.graph_pixel(run.frame_arr, (50, 500))
 
         elif prog_type == "2":
+            settings.load_previous()
             # Inport multiple runs and create list of run objects
             run_series = rpt.get_multi_run(settings.start_frame)
             # Ask for sorting

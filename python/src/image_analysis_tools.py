@@ -129,28 +129,27 @@ def test_fit(xvals, yvals, mean, std, func="gauss"):
             -gauss; gaussian distribution
     """
     # Check input
-    model = {"gauss": stats.norm.pdf}
+    model = {"gauss": (stats.norm.pdf, 2)}
     if func in model.keys():
-        theoretical = model(func)
+        theoretical = model(func)[0]
+        df = model(func)[1]
     else: raise KeyError("\"{}\" is not a valid function".format(func))
     try:
         len(xvals) == len(yvals)
     except:
         raise ValueError("The shape of xvals does not equal the shape of yvals")
-    
-    chi2 = 0
-    zvals = (xvals - mean)/ std
-    chi2_bin = yvals - theoretical
-    for i in range(len(xvals)):
-        chi2 += (yvals[i]/N - theoretical(zvals[i]))**2 / theoretical(zvals[i])
-    return  chi2 * N
+    chi2, p_val = stats.chisquare(yvals, theoretical(xvals), df, axis=0)
+    return chi2, p_val
 
 
-def check_gauss(run, opb=1):
+def check_pix(run, opb=1, func="gauss"):
     """
     Args:
         run: Run class instance;
+
         opb: int; output values per bin, number of unique values per bin
+
+        func: str; function used in test_fit
     """
     # determine the number useful frames
     u_frames = run.n_frames - run.start_frame
@@ -166,6 +165,7 @@ def check_gauss(run, opb=1):
                 bins=bin_edge, density=True)[0]
             # Determine each bin_mid, move up to middle and remove final point
             bin_mid = (bin_edge[:-1] + 0.5).astype(int)
+            chi2, p_val = test_fit(bin_mid, bin_prob, run.offset, run.err_dark, func=func)
             # del bin_edge
             # Check plot
             plt.scatter(bin_mid, bin_prob)

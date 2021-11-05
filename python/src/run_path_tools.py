@@ -101,11 +101,12 @@ def get_run(name=None, filepath_raw=None, start_frame=100):
             run.success = False
             exit()      
         if os.path.isfile(filepath_raw) == True:
-            run.filepath = filepath_raw
+            break
         else:
             print("Error: could not find file: {}".format(filepath))
             filepath_raw = None
             continue
+    run.filepath = filepath_raw
     run.frame_arr, run.n_frames = file_t_arr(run.filepath, run.resolution)
     # Setup start frame SORT OUT INPUT LATER
     run.start_frame = start_frame
