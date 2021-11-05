@@ -13,6 +13,14 @@ if __name__ == "__main__":
     # Import settings and check their values 
     settings = Settings()
     settings.check()
+    while True:
+        load = input("Load previous settings (y/n)?\n")
+        if load == "y":
+            settings.load_prevous()
+        if load == "n":
+            pass
+        else:
+            print("Error: did not recognise input")
     
     # Main loop
     while True:

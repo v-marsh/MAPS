@@ -17,7 +17,7 @@ class Settings():
     pedestal = None
     read_error = None
 
-    def __init__(self):
+    def get_previous(self):
         self.get_noise()
         self.get_offset()
 
