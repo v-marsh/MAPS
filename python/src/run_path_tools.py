@@ -15,14 +15,25 @@ class Run():
 
         returns:
             Instance of the Run object with additional arguments:
+                
                 filepath: str, path to run data
+                
                 n_frames: int, the number of frames in the specific run
+                
                 start_frame: first useful frame of the run
+                
                 run_avg: float, average output for all pixels across all frames 
+                
                 frame_arr: uint16 np.ndarray, pixel array for all frames
+                
                 frame_avg: np.ndarray, array of the individual average pixels output  
+                
                 offset: np.ndarray, pixel array of offset (pedestal) values for the sensor
+                
                 err_dark: np.ndarray, pixel array of dark (read) noise   
+                
+                use_pix: bool array, if true then the pixel is deemed within
+                    acceptable error and can be used  
         """
         self.success = success
         self.name = name
@@ -34,6 +45,7 @@ class Run():
         self.frame_avg = None
         self.offset = None
         self.err_dark = None
+        self.use_pix = None
     
 
 def file_t_arr(filepath, resolution, VERBOSE=False):

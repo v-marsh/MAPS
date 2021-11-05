@@ -87,7 +87,7 @@ def get_noise(arr):
         filepath = os.path.join(dirpath, name)
         with open(filepath, "wb") as f:
             np.save(f, noise_arr)
-        return noise_arr
+    return noise_arr
 
 
             
@@ -114,19 +114,24 @@ def get_offset(arr):
     return ped_arr
 
 
-def chi_sqr_test(xvals, yvals, mean, std):
+def test_fit(xvals, yvals, mean, std, func="gauss"):
     """
-    Chi Square test against gaussian distribution
+    Uses Pearson's cumulative test parameter to determine the quatlity of fit
+    between a dataset and a model function
 
     Args:
-        x_vals: array-like; x values of graph to test
+        x_vals: array-like; x values of dataset
 
-        y_vals: array-like; y values of graph to test
+        y_vals: array-like; y values of dataset
 
-        mean: float; arithmetic mean of the graph to test
+        mean: float; arithmetic mean of y values for the dataset
 
-        std: float; standard deviation of the graph to test
+        std: float; standard deviation of y values for teh dataset
+
+        func: string; function to model against, the choices are:
+            -gauss; gaussian distribution
     """
+    model = {"gauss": stats.norm.cdf}
     try:
         len(xvals) == len(yvals)
     except:
@@ -141,29 +146,29 @@ def chi_sqr_test(xvals, yvals, mean, std):
     return  chi2 * N
 
 
-def check_gauss(run, hpb=20):
+def check_gauss(run, opb):
     """
     Args:
         run: Run class instance;
-        hpb: float; average hits per bin
+        opb: int; output values per bin, number of unique values per bin
     """
-    # determine the number of frames for optimal bin values
+    # determine the number useful frames
     u_frames = run.n_frames - run.start_frame
-    bin_dat = np.zeros([2, n_bins], dtype=float)
-    
+
     # Check each individual pixel
     for i in range(run.resolution[0]):
         for j in range(run.resolution[1]):
-            n_bins = range(np.min(run.frame_arr[:, i, j]) - 0.5, \
-                np.max(run.frame_arr[:, i, j]) + 0.5, 1)
-            bin_dat[1], bin_edge = np.histogram(run.frame_arr[:, i, j], \
-                bins=n_bins, density=True)
-            for k in range(n_bins):
-                bin_dat[0, k] = (bin_edge[k+1]+bin_edge[k])/2
-            del bin_edge
-            # sorting
-            plt.plot(bin_dat[0], bin_dat[1])
-            # plt.hist(run.frame_arr[:, i, j], bins=n_bins, density=True)
+            # Create bin sequence
+            bin_edge = np.arange(np.min(run.frame_arr[:, i, j]) - 0.5, \
+                np.max(run.frame_arr[:, i, j]) + 0.5, 1, dtype=float)
+            # Determine each bin edge
+            bin_prob = np.histogram(run.frame_arr[:, i, j], \
+                bins=bin_edge, density=True)[0]
+            # Determine each bin_mid, move up to middle and remove final point
+            bin_mid = (bin_edge[:-1] + 0.5).astype(int)
+            # del bin_edge
+            # Check plot
+            plt.scatter(bin_mid, bin_prob)
             plt.show()
             
     # # Check all pixels
@@ -173,4 +178,4 @@ def check_gauss(run, hpb=20):
     # n_bins = int(u_frames * run.resolution[0] / hpb)
     # normal_frame_arr = normal_frame_arr.reshape(-1)
     # plt.hist(normal_frame_arr, bins=n_bins, density=True)
-    plt.show()
+    # plt.show()
