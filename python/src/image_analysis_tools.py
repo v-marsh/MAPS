@@ -90,10 +90,6 @@ def get_noise(arr):
     return noise_arr
 
 
-            
-        
-    return noise_arr
-
 def get_offset(arr):
     """
     Calculates the pedestal for each pixel in the sensor
@@ -117,7 +113,8 @@ def get_offset(arr):
 def test_fit(xvals, yvals, mean, std, func="gauss"):
     """
     Uses Pearson's cumulative test parameter to determine the quatlity of fit
-    between a dataset and a model function
+    between a denisty normalised dataset (must integrate to 1) and a model 
+    function
 
     Args:
         x_vals: array-like; x values of dataset
@@ -131,22 +128,25 @@ def test_fit(xvals, yvals, mean, std, func="gauss"):
         func: string; function to model against, the choices are:
             -gauss; gaussian distribution
     """
-    model = {"gauss": stats.norm.cdf}
+    # Check input
+    model = {"gauss": stats.norm.pdf}
+    if func in model.keys():
+        theoretical = model(func)
+    else: raise KeyError("\"{}\" is not a valid function".format(func))
     try:
         len(xvals) == len(yvals)
     except:
         raise ValueError("The shape of xvals does not equal the shape of yvals")
     
-    N = len(xvals)
     chi2 = 0
     zvals = (xvals - mean)/ std
-    theoretical = lambda x : stats.norm.cdf(x)
+    chi2_bin = yvals - theoretical
     for i in range(len(xvals)):
         chi2 += (yvals[i]/N - theoretical(zvals[i]))**2 / theoretical(zvals[i])
     return  chi2 * N
 
 
-def check_gauss(run, opb):
+def check_gauss(run, opb=1):
     """
     Args:
         run: Run class instance;
@@ -160,7 +160,7 @@ def check_gauss(run, opb):
         for j in range(run.resolution[1]):
             # Create bin sequence
             bin_edge = np.arange(np.min(run.frame_arr[:, i, j]) - 0.5, \
-                np.max(run.frame_arr[:, i, j]) + 0.5, 1, dtype=float)
+                np.max(run.frame_arr[:, i, j]) + 0.5, opb, dtype=float)
             # Determine each bin edge
             bin_prob = np.histogram(run.frame_arr[:, i, j], \
                 bins=bin_edge, density=True)[0]

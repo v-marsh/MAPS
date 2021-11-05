@@ -15,10 +15,11 @@ if __name__ == "__main__":
     settings.check()
     while True:
         load = input("Load previous settings (y/n)?\n")
-        if load == "y":
-            settings.load_prevous()
-        if load == "n":
-            pass
+        if load.strip() == "y":
+            settings.load_previous()
+            break
+        elif load.strip() == "n":
+            break
         else:
             print("Error: did not recognise input")
     
@@ -34,9 +35,19 @@ if __name__ == "__main__":
             if run.success == False:
                 print("Import failed, aborting")
                 exit()
-            run.offset = iat.get_offset(run.frame_arr)
-            run.err_dark = iat.get_noise(run.frame_arr)
-            iat.check_gauss(run)
+            if load == "n":
+                while True:
+                    recalc = input("Recalculate pedestal and error (y/n)?\n")
+                    if recalc.strip() == "y":
+                        recalc == True
+                        break
+                    if recalc.strip() == "n":
+                        recalc == False
+                        break
+                    else: print("Error: did not recognise input \"{}\"".format(recalc))
+                run.offset = iat.get_offset(run.frame_arr)
+                run.err_dark = iat.get_noise(run.frame_arr)
+            iat.check_gauss(run, opb=1)
 
 
             # run.frame_avg = iat.graph_mean(run.frame_arr, smooth=None)
