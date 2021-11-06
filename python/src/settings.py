@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 
@@ -9,6 +10,8 @@ class Settings():
         start_frame: int, the first frame of the run that is used for analysis
         end_frame: int, the final frame in the run that is used for analysis
     """
+    src_path = None
+    loaded_prev = False
     offset_filepath = r"C:\Users\vidar\OneDrive - University of Bristol\Documents\Uni_2021_2022\MAPS_experiment\code\python\lib\Dark_Offset\Dark_test1"
     noise_filepath = r"C:\Users\vidar\OneDrive - University of Bristol\Documents\Uni_2021_2022\MAPS_experiment\code\python\lib\Dark_Noise\Dark_test1"
     resolution = (520, 520)
@@ -17,9 +20,24 @@ class Settings():
     pedestal = None
     read_error = None
 
-    def __init__(self):
-        self.get_noise()
-        self.get_offset()
+    def load_previous(self, load):
+        """
+        Loads previous offset and dark (read) noise. Updates loaded_prev
+        accordingly
+        
+        Args:
+            load: bool; if True then loads the previous offset and dark noise
+        """
+        if load == True:
+            self.get_noise()
+            self.get_offset()
+            self.loaded_prev = load
+        elif load == False:
+            pass
+        else:
+            raise TypeError("load must be boolean, not \"{}\"".format(\
+                type(load)))
+        self.loaded_prev = load
 
     def get_offset(self):
         """
