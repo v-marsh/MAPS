@@ -130,33 +130,32 @@ def gauss(x, mean, std):
     return 1/(std*np.sqrt(2*np.pi))*np.exp(-1/2*np.square((x-mean)/std))
 
 
-        func: str; function used in test_fit
-    # """
-    # # determine the number useful frames
-    # u_frames = run.n_frames - run.start_frame
+def pearson_test()
+    # determine the number useful frames
+    u_frames = run.n_frames - run.start_frame
 
-    # # Check each individual pixel
-    # for i in range(run.resolution[0]):
-    #     for j in range(run.resolution[1]):
-    #         # Create bin sequence
-    #         bin_edge = np.arange(np.min(run.frame_arr[:, i, j]) - 0.5, \
-    #             np.max(run.frame_arr[:, i, j]) + 0.5, opb, dtype=float)
-    #         # Determine each bin edge
-    #         bin_prob = np.histogram(run.frame_arr[:, i, j], \
-    #             bins=bin_edge, density=True)[0]
-    #         # Determine each bin_mid, move up to middle and remove final point
-    #         bin_mid = (bin_edge[:-1] + 0.5).astype(int)
-    #         chi2, p_val = test_fit(bin_mid, bin_prob, run.offset, run.err_dark, func=func)
-    #         del bin_edge
-    #         # Check plot
-    #         plt.scatter(bin_mid, bin_prob)
-    #         plt.show()
+    # Check each individual pixel
+    for i in range(run.resolution[0]):
+        for j in range(run.resolution[1]):
+            # Create bin sequence
+            bin_edge = np.arange(np.min(run.frame_arr[:, i, j]) - 0.5, \
+                np.max(run.frame_arr[:, i, j]) + 0.5, opb, dtype=float)
+            # Determine each bin edge
+            bin_prob = np.histogram(run.frame_arr[:, i, j], \
+                bins=bin_edge, density=True)[0]
+            # Determine each bin_mid, move up to middle and remove final point
+            bin_mid = (bin_edge[:-1] + 0.5).astype(int)
+            chi2, p_val = test_fit(bin_mid, bin_prob, run.offset, run.err_dark, func=func)
+            del bin_edge
+            # Check plot
+            plt.scatter(bin_mid, bin_prob)
+            plt.show()
             
-    # # # Check all pixels
-    # # normal_frame_arr = np.zeros(run.frame_arr.shape, dtype=float)
-    # # for i in range(run.start_frame, run.n_frames, 1):
-    # #     normal_frame_arr[i] = (run.frame_arr[i] - run.offset) / run.err_dark
-    # # n_bins = int(u_frames * run.resolution[0] / hpb)
-    # # normal_frame_arr = normal_frame_arr.reshape(-1)
-    # # plt.hist(normal_frame_arr, bins=n_bins, density=True)
-    # # plt.show()
+    # # Check all pixels
+    # normal_frame_arr = np.zeros(run.frame_arr.shape, dtype=float)
+    # for i in range(run.start_frame, run.n_frames, 1):
+    #     normal_frame_arr[i] = (run.frame_arr[i] - run.offset) / run.err_dark
+    # n_bins = int(u_frames * run.resolution[0] / hpb)
+    # normal_frame_arr = normal_frame_arr.reshape(-1)
+    # plt.hist(normal_frame_arr, bins=n_bins, density=True)
+    # plt.show()

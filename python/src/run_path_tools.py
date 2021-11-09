@@ -5,10 +5,16 @@ import numpy as np
 
 
 class Prog_data():
+    saved_ptc = {}
     saved_runs = {}
-    free_index = 0
+    free_run_name = 0
+    free_ptc_name = 0
 
-    def print_saved(self):
+    def print_saved_all(self):
+        self.print_saved_runs()
+        self.print_saved_ptc()
+
+    def print_saved_runs(self):
         """
         Prints the name of each saved run and the number of datasets contained
         within to std. output
@@ -24,6 +30,119 @@ class Prog_data():
                 self.saved_runs[key])))
         print("\n")
 
+    def print_saved_ptc(self):
+        """
+        Prints the name of each saved PT curve
+        """
+        print("Loaded PT curves are:")
+        
+        if len(self.saved_ptc) == 0:
+            print("None")
+        else:
+            for key in self.saved_ptc:
+                print("PT curve name: {}".format(key))
+                print("PT curve sorting: {}".format(\
+                    self.saved_ptc[key].sorted))
+        print("\n")
+
+    def new_run_name(self):
+        """
+        Asks user to input a unique run name in std. input or have it
+        automatically assigned
+        
+        Returns: str; the run name entered by the user
+        """
+        while True:
+            print("Please input a unique run name")
+            print("Press <enter> to automatically assign name")
+            run_name = input()
+            if run_name == "":
+                run_name = str(self.free_run_name)
+                self.free_run_name += 1
+                return run_name
+            elif run_name in self.saved_runs:
+                print("Error run name is already in use")
+                continue
+            else:
+                return run_name
+
+    def new_ptc_name(self):
+        """
+        Asks user to input a unique PT curve name in std. input or have it
+        automatically assigned
+
+        Returns: str; the Pt curve name entered by the user
+        """
+        while True:
+            print("Please input a unique PT curve name")
+            print("Press <enter> to automatically assign name")
+            ptc_name = input()
+            if ptc_name == "":
+                ptc_name = str(self.free_ptc_name)
+                self.free_ptc_name += 1
+                return ptc_name
+            elif ptc_name in self.saved_ptc:
+                print("Error run name is already in use")
+                continue
+            else:
+                return ptc_name
+
+    def get_run_name(self):
+        """
+        Asks user to input a run name in std. input and checks if it exists in
+        saved_runs, i.e. if it is a valid key
+
+        Returns: run name; if it is a valid key in saved_runs
+            None; if the run name is not a valid key in saved_runs 
+        """
+        self.print_saved_runs()
+        print("Please choose a run to analyse for PT curve")
+        run_name = input()
+        if run_name in self.saved_runs:
+            print("Run \"{}\" exists".format(run_name))
+        else:
+            print("Could not find run \"{}\", aborting!".format(run_name))
+            return None
+        # Add extra checks here as neccessary
+        return run_name
+    
+    def get_ptc_name(self):
+        """
+        Asks user to input a PT curve name in std. input and checks if it
+        exists in saved_ptc, i.e. if it is a valid key
+        
+        Returns: PT curve name; if it is a valid key in save_ptc
+            None; if the PT curve name is not a valid key in saved_ptc
+        """
+        self.print_saved_ptc()
+        print("Please choose a run to analyse for PT curve")
+        ptc_name  = input()
+        if ptc_name in self.saved_ptc:
+            print("PT curve \"{}\" exists".format(ptc_name))
+        else:
+            print("Could not find run \"{}\", aborting!".format(ptc_name))
+            return None
+        # Add extra checks here as neccessary
+        return ptc_name
+
+    def check_ptc_req(self, run_name):
+        """
+        Checks if a valid run fulfills the requirements for PT curve analysis
+
+        Returns: True; if the run satisfies the requirements
+            False; if the run does not satisfy teh requirments 
+        """
+        run_len = len(self.saved_runs[run_name])
+        if run_len > 1:
+            print("Run \"{}\" contains {} datasets".format(run_name, run_len))
+        else:
+            error = "Run \"{}\" contains \"{}\", ".format(run_name, run_len)
+            error += "PT curves require at least 2 datasets, aborting!" 
+            print(error)
+            return False
+        # Add more requirements here if neccessary
+        return True
+
     def del_run(self, run_name):
         """
         Deletes the run corresponding to run_name in self.saved_runs if it
@@ -37,6 +156,19 @@ class Prog_data():
         else:
             print("Error: did not find run \"{}\", aborting".format(run_name))
 
+    def del_ptc(self, ptc_name):
+        """
+        Deletes the PT curve corresponding to ptc_name in self.saved_ptc if it
+        exists
+        
+        Args:
+            ptc_name: str; name of PT curve to delete   
+        """
+        if ptc_name in self.saved_runs.keys():
+            self.saved_ptc.pop(ptc_name)
+        else:
+            print("Error: did not find PT curve \"{}\", aborting"\
+                .format(ptc_name)) 
 
 class Run():
     resolution = (520, 520) 
@@ -71,31 +203,7 @@ class Run():
         self.use_pix = None
 
     def __len__(self):
-            return 1
-    
-def get_run_name(prog_data):
-    """
-    Asks user to input a run name in std. input
-    
-    Args:
-        prog_data: Prog_data class instance; all imported runs so far
-
-    Returns: str; the run name inputted by the user
-    """
-    while True:
-        print("Please input a unique run name")
-        print("Press <enter> to automatically assign run name")
-        run_name = input()
-        if run_name == "":
-            run_name = prog_data.free_index
-            prog_data.free_index += 1
-            return run_name
-        elif run_name in prog_data.saved_runs:
-            print("Error run name is already in use")
-            continue
-        else:
-            return run_name
-        
+            return 1       
 
 
 def file_t_arr(filepath, resolution, VERBOSE=False):
@@ -144,33 +252,20 @@ def get_single_run(name, filepath, start_frame):
     return run
 
 
-def get_multi_run(dirpath, start_frame, VERBOSE=False):
+def get_multi_run(dirpath, start_frame):
     """
-    Asks user to enter a valied path to a directory containing a series runs
-    and askes for the indentifying string for the series of runs. Form each
-    valid filename in the directory it will try to create a run object using
-    get_single_run.
+    Asks user for an indentifier and tried to match it to a filename in the
+    directory at the end of dirpath. If a valid filename is found 
+    it will try to create a list of multiple run objects using get_single_run.
+
+    Args:
+        dirpath: raw str; valid path to directory
+
+        start_frame: int; first useful frame in each run object
 
     Returns: list of Run objects where the name corresponds to the filename
     for the file containing the data 
     """
-    # # Get valid directory from std input
-    # while True:
-    #     # Get valid dir
-    #     print("Please input a valid directory path")
-    #     filedir = input("Press <enter> to exit program\n")
-    #     filedir_raw = r"{}".format(filedir)
-    #     if filedir == "":
-    #         exit()
-    #     if os.path.isdir(filedir_raw) == False:
-    #         print("Error: could not find directory {}".format(filedir_raw))
-    #         continue
-    #     filedir_names = os.listdir(filedir_raw)
-    #     if len(filedir_names) == 0:
-    #         print("Error: directory is empty please enter a non-empty directory")
-    #         continue
-    #     break
-    # Get valid name from std input
     dir_filenames = os.listdir(dirpath)
     if len(dir_filenames) == 0:
         print("Error: directory \"{}\" is empty, aborting!"\

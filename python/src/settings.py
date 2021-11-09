@@ -1,6 +1,9 @@
 import os
 import numpy as np
+from time import sleep
 
+noise = "Dark_test1.npy"
+offset = "Dark_test1.npy"
 
 class Settings():
     """
@@ -10,34 +13,46 @@ class Settings():
         start_frame: int, the first frame of the run that is used for analysis
         end_frame: int, the final frame in the run that is used for analysis
     """
-    src_path = None
-    loaded_prev = False
-    offset_filepath = r"C:\Users\vidar\OneDrive - University of Bristol\Documents\Uni_2021_2022\MAPS_experiment\code\python\lib\Dark_Offset\Dark_test1"
-    noise_filepath = r"C:\Users\vidar\OneDrive - University of Bristol\Documents\Uni_2021_2022\MAPS_experiment\code\python\lib\Dark_Noise\Dark_test1"
-    resolution = (520, 520)
-    start_frame = 50
-    end_frame = None
-    pedestal = None
-    read_error = None
+    def __init__(self, src_path, default_offset=offset, default_noise=noise):
+        self.src_path = src_path
+        self.offset_filepath = self.get_offset_path(default_offset)
+        self.noise_filepath = self.get_noise_path(default_noise)
+        self.resolution = (520, 520)
+        self.start_frame = 50
+        self.end_frame = None
+        self.offset = None
+        self.dark_noise = None
 
-    def load_previous(self, load):
+    def get_offset_path(self, default_offset):
         """
-        Loads previous offset and dark (read) noise. Updates loaded_prev
-        accordingly
+        Creates the offset filepath using src_path and default_offset
         
-        Args:
-            load: bool; if True then loads the previous offset and dark noise
+        Returns: The full offset filepath
         """
-        if load == True:
-            self.get_noise()
-            self.get_offset()
-            self.loaded_prev = load
-        elif load == False:
-            pass
-        else:
-            raise TypeError("load must be boolean, not \"{}\"".format(\
-                type(load)))
-        self.loaded_prev = load
+        parent_dir = os.path.split(self.src_path)[0]
+        return os.path.join(parent_dir, "lib", "Dark_Offset", default_offset)
+        
+    def get_noise_path(self, default_noise):
+        """
+        Creates the dark (read) noise filepath using src_path and default_noise
+        
+        Returns: The full dark (read) noise path
+        """
+        parent_dir = os.path.split(self.src_path)[0]
+        return os.path.join(parent_dir, "lib", "Dark_Noise", default_noise)
+
+    def load_default(self):
+        """
+        Loads the default offset and dark (read) noise from offset_filepath and
+        noise_filepath. These are saved to self.offset and self.dark_noise
+        respectively.        
+        """
+        self.get_noise()
+        print("Loaded default offset from \"{}\"".format(self.offset_filepath))
+        sleep(0.5)
+        self.get_offset()
+        print("Loaded default noise from \"{}\"".format(self.noise_filepath))
+        sleep(0.5)
 
     def get_offset(self):
         """
@@ -46,7 +61,13 @@ class Settings():
         Args:
             filepath: string, valid path to pedestal value
         """
-        self.pedestal = np.load(self.offset_filepath)
+        try:
+            self.offset = np.load(self.offset_filepath)
+        except:
+            errorstatement = "Unable to find default offset, check if the file "
+            errorstatement += "was deleted of lib directory was moved"
+            raise ImportError(errorstatement)
+        
     
     def get_noise(self):
         """
@@ -55,7 +76,12 @@ class Settings():
         Args:
             filepath: string, valid path to dark error values
         """
-        self.read_error = np.load(self.noise_filepath)
+        try:
+            self.dark_noise = np.load(self.noise_filepath)
+        except:
+            errorstatement = "Unable to find default noise, check if the file "
+            errorstatement += "was deleted or lib directory was moved"
+            raise ImportError(errorstatement)
         
     def check(self):
         """
