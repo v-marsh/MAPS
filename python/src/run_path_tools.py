@@ -3,6 +3,8 @@ import os
 
 import numpy as np
 
+ETS = "Press <enter> to skip"
+
 
 class Prog_data():
     saved_ptc = {}
@@ -96,7 +98,7 @@ class Prog_data():
             None; if the run name is not a valid key in saved_runs 
         """
         self.print_saved_runs()
-        print("Please choose a run to analyse for PT curve")
+        print("Please choose a run to analyse")
         run_name = input()
         if run_name in self.saved_runs:
             print("Run \"{}\" exists".format(run_name))
@@ -142,6 +144,38 @@ class Prog_data():
             return False
         # Add more requirements here if neccessary
         return True
+    
+    def get_run_num(self, run):
+        """
+        Asks user to select run number from multi run
+        
+        Args:
+            run: array-like; collection of Run class instances
+            
+        Returns: Run number given that it exists, else: None
+        """
+        max_run_num = len(self.saved_runs[run])
+        if max_run_num == 1:
+            return 1
+        while True:
+            print("Please choose run number in range (1, {}) for analysis"\
+                .format(max_run_num))
+            print(ETS)
+            run_num = input()
+            if run_num == "":
+                return None
+            try:
+                run_num = int(run_num)
+            except:
+                print("Error: please enter an integer")
+                continue
+            if run_num > max_run_num or run_num < 0:
+                print("Error: please enter a number between 1 and {}"\
+                    .format(max_run_num))
+                continue            
+            else:
+                break
+        return run_num
 
     def del_run(self, run_name):
         """
@@ -203,7 +237,7 @@ class Run():
         self.use_pix = None
 
     def __len__(self):
-            return 1       
+            return 1
 
 
 def file_t_arr(filepath, resolution, VERBOSE=False):

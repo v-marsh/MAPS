@@ -130,7 +130,7 @@ def gauss(x, mean, std):
     return 1/(std*np.sqrt(2*np.pi))*np.exp(-1/2*np.square((x-mean)/std))
 
 
-def pearson_test()
+def pearson_test():
     # determine the number useful frames
     u_frames = run.n_frames - run.start_frame
 
