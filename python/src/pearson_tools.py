@@ -1,8 +1,6 @@
 import os
 import numpy as np
 from scipy.stats import chisquare
-from scipy.stats import norm
-from scipy.stats.contingency import expected_freq
 
 ETS = "Pess <enter> to skip"
 
@@ -125,7 +123,8 @@ class Pearsontest():
                 # Remove empty bins
                 bin_prob = bin_prob[non_empty]
                 bin_mid = (bin_edge[non_empty] + 0.5).astype(int)
-                df = len(bin_mid) - 2
+                df = 1
+
                 # NOTE: there is an issue with the gaussian function, it does
                 # not calc the correct value! Try graphing them solution, must
                 # calc mean and spread for specific dataset!
@@ -143,7 +142,7 @@ class Pearsontest():
         if type(self.chi2_arr) != np.ndarray:
             print("Error: No chi2_arr saved, aborting!")
             return False
-        elif os.path.isfile == True:
+        elif os.path.isfile(filepath) == True:
             print("Error: filepath is already in use, aborting!")
             return False
         else:

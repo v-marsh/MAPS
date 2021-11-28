@@ -5,7 +5,7 @@ from time import sleep
 ETS = "Press <enter> to skip"
 default_noise = "Dark_test1"
 default_offset = "Dark_test1"
-default_chi2 = "Chi2_Test2"
+default_chi2 = "Chi2_correct"
 default_passed_pix = "Passed_Pix1"
 
 class Settings():
@@ -24,7 +24,7 @@ class Settings():
         self.chi2_filepath = self.get_chi2_path(chi2)
         self.passed_pix_filepath = self.get_passed_path(passed_pix)
         self.resolution = (520, 520)
-        self.start_frame = 50
+        self.start_frame = 100
         self.end_frame = None
         self.offset = None
         self.dark_noise = None

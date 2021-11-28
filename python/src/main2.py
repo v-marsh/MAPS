@@ -92,10 +92,10 @@ if __name__=="__main__":
         elif func_choice == "2":
         # Load new PT curve
             # Check that there exists and offset, and dark (read) noise
-            if type(settings.offset) != np.ndarray:
+            if isinstance(settings.offset, np.ndarray):
                 print("Error: no offset loaded,", end=" ")
                 print("please update settings first, aborting!")
-            if type(settings.dark_noise) != np.ndarray:
+            if isinstance(settings.dark_noise, np.ndarray):
                 print("Error: no dark noise loaded,", end=" ")
                 print("please update setting first, aborting!")
             # Check that there exists at least one loaded run
