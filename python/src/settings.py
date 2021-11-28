@@ -24,7 +24,7 @@ class Settings():
         self.chi2_filepath = self.get_chi2_path(chi2)
         self.passed_pix_filepath = self.get_passed_path(passed_pix)
         self.resolution = (520, 520)
-        self.start_frame = 100
+        self.start_frame = 50
         self.end_frame = None
         self.offset = None
         self.dark_noise = None

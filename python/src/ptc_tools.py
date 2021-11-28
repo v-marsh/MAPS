@@ -1,6 +1,10 @@
+import os
+from typing import Container
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+ETS = "Press <enter> to skip"
 # import image_analysis_tools as iat
 
 class PTC:
@@ -249,3 +253,29 @@ def graph_ptc(ptc):
     ax.set(xlabel="Signal", ylabel="Noise")
     ax.legend()
     plt.show()
+
+def save_pt_curve(pt_curve, src_path):
+    """
+    Asks the user to input a filename for a pt curve. If filepath is available,
+    saves the pt curve
+
+    Parameters
+    ----------
+    pt_curve : ndarray
+        ptc curve to be saved
+    """
+    while True:
+        print("Enter filename to save PT curve")
+        print(ETS)
+        filename = input()
+        if filename == "":
+            return
+        else:
+            filename = f"{filename}.npy"
+        parent_dirpath = os.path.split(src_path)[0]
+        filepath = os.path.join(parent_dirpath, "lib", "PT_curves", filename)
+        if os.path.isfile(filepath):
+            print(f"Error: filename '{filename}' aready in use")
+            continue
+        with open(filepath, "wb") as f:
+            np.save(f, pt_curve)

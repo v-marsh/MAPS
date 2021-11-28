@@ -123,7 +123,7 @@ class Pearsontest():
                 # Remove empty bins
                 bin_prob = bin_prob[non_empty]
                 bin_mid = (bin_edge[non_empty] + 0.5).astype(int)
-                df = 1
+                df = len(bin_mid)-2
 
                 # NOTE: there is an issue with the gaussian function, it does
                 # not calc the correct value! Try graphing them solution, must
