@@ -129,7 +129,7 @@ if __name__=="__main__":
                 prog_data.saved_runs[run_name], settings.offset,\
                 settings.dark_noise, settings.resolution,\
                 sort=sorting)
-            ptc.save_pt_curve(prog_data.saved_ptc.get[ptc_name], settings.src_path)
+            ptc.save_pt_curve(prog_data.saved_ptc.get(ptc_name), settings.src_path)
 
         elif func_choice == "3":
         # Remove loaded run

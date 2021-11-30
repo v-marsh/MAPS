@@ -1,5 +1,6 @@
 import os
-from typing import Container
+
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -254,7 +255,7 @@ def graph_ptc(ptc):
     ax.legend()
     plt.show()
 
-def save_pt_curve(pt_curve, src_path):
+def save_ptc_object(pt_curve, src_path):
     """
     Asks the user to input a filename for a pt curve. If filepath is available,
     saves the pt curve
@@ -265,7 +266,7 @@ def save_pt_curve(pt_curve, src_path):
         ptc curve to be saved
     """
     while True:
-        print("Enter filename to save PT curve")
+        print("Enter filename to save PTC object")
         print(ETS)
         filename = input()
         if filename == "":
@@ -278,4 +279,5 @@ def save_pt_curve(pt_curve, src_path):
             print(f"Error: filename '{filename}' aready in use")
             continue
         with open(filepath, "wb") as f:
-            np.save(f, pt_curve)
+            pickle.dump(pt_curve, f, protocol=pickle.HIGHEST_PROTOCOL)
+            return
