@@ -6,8 +6,7 @@ import scipy.stats as stats
 
 
 def graph_mean(arr, smooth=None, resolution=(520, 520)):
-    """
-    Graphs the average of the inner dimension of a 2d np.ndarra
+    """Graphs the average of the inner dimension of a 2d np.ndarra
     
     Args:
         arr: np.ndarra 2d array to be graphed. 
@@ -22,7 +21,7 @@ def graph_mean(arr, smooth=None, resolution=(520, 520)):
     n_frames = len(arr_avg)
 
     # Sort out smoothing
-    if smooth != None and type(smooth) == int:
+    if smooth != None and isinstance(smooth, int):
         print("Smoothing over {} frames".format(smooth))
         for i in range(n_frames):
             frame_avg = 0
@@ -103,7 +102,7 @@ def get_offset(arr):
     print("Please enter a filename to save offset")
     name =  input("Press <enter> to skip\n")
     if name != "":
-        dirpath = r"C:\Users\vidar\OneDrive - University of Bristol\Documents\Uni_2021_2022\MAPS_experiment\code\python\lib\Dark_Offset"
+        dirpath = r"C:\Users\vidar\OneDrive - University of Bristol\Documents\Uni_2021_2022\MAPS_experiment\code\python_old\lib\Dark_Offset"
         filepath = os.path.join(dirpath, name)
         with open(filepath, "wb") as f:
             np.save(f, ped_arr)
@@ -166,7 +165,7 @@ def check_pix(run, opb=1, func="gauss"):
             # Determine each bin_mid, move up to middle and remove final point
             bin_mid = (bin_edge[:-1] + 0.5).astype(int)
             chi2, p_val = test_fit(bin_mid, bin_prob, run.offset, run.err_dark, func=func)
-            # del bin_edge
+            del bin_edge
             # Check plot
             plt.scatter(bin_mid, bin_prob)
             plt.show()

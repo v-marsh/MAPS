@@ -90,3 +90,5 @@ if __name__ == "__main__":
                 else:
                     print("Error: \"{}\" is an invalid choice".format(repeat))
                     continue
+        else:
+            exit()
